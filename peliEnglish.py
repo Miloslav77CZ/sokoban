@@ -3,20 +3,20 @@ import pygame
 class Sokoban:
     def __init__(self):
         pygame.init()
-
+        
         self.load_images()
         self.new_game()
-
+        
         self.height = len(self.map)
         self.width = len(self.map[0])
         self.scale = self.images[0].get_width()
 
         window_height = self.scale * self.height
         window_width = self.scale * self.width
-        self.window = pygame.display.set_mode((window_width, window_height))
-
+        self.window = pygame.display.set_mode((window_width, window_height + self.scale))
+        
         self.game_font = pygame.font.SysFont("Arial", 24)
-
+        
         pygame.display.set_caption("Sokoban")
 
         self.main_loop()
@@ -27,6 +27,7 @@ class Sokoban:
             self.images.append(pygame.image.load(name + ".png"))
 
     def new_game(self):
+        #each matrix pos represents an actrual object from self.images
 
         self.map = [[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
                     [1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
@@ -34,15 +35,16 @@ class Sokoban:
                     [1, 0, 0, 1, 2, 3, 0, 2, 3, 0, 0, 0, 1, 0, 0, 0, 1],
                     [1, 0, 4, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
                     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]]
-
+        
         self.moves = 0
 
     def main_loop(self):
+        #keep adding executions going next level 
         while True:
             self.check_events()
             self.draw_window()
 
-    def check_events(self):
+    def check_events(self):#decides real game moves
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
@@ -57,7 +59,7 @@ class Sokoban:
             if event.type == pygame.QUIT:
                 exit()
     def move(self, move_y, move_x):
-        robot_old_y, robot_old_x = self.find_robot()
+        robot_old_y, robot_old_x = self.find_robot() 
         robot_new_y = robot_old_y + move_y
         robot_new_x = robot_old_x + move_x
 
@@ -78,7 +80,7 @@ class Sokoban:
         self.map[robot_new_y][robot_new_x] += 4
 
         self.moves += 1
-
+    
     def find_robot(self ):
         for y in range(self.height):
             for x in range(self.width):
@@ -92,6 +94,9 @@ class Sokoban:
             for x in range(self.width):
                 square = self.map[y][x]
                 self.window.blit(self.images[square], (x * self.scale, y * self.scale))
+
+        game_text = self.game_font.render("Moves: " + str(self.moves), True, (255, 0, 0))
+        self.window.blit(game_text, (25, self.height * self.scale + 10))
 
         game_text = self.game_font.render("F2 = new game", True, (255, 0, 0))
         self.window.blit(game_text, (200, self.height * self.scale + 10))
